@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Донат и койны</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f0f5;
+      text-align: center;
+      padding: 30px;
+    }
+
+    h1 {
+      color: #333;
+    }
+
+    .character {
+      width: 250px;
+      display: inline-block;
+      margin: 20px;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      color: white;
+    }
+
+    .baron { background-color: #00bfff; }
+    .fighter { background-color: #ff3333; }
+    .duke { background-color: #0000cc; }
+
+    .donate-btn {
+      background-color: white;
+      color: black;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .donate-btn:hover { background-color: #ddd; }
+
+    .coins-section {
+      margin-top: 40px;
+      padding: 20px;
+      background-color: #ffe5e5;
+      border-radius: 15px;
+      width: 400px;
+      display: inline-block;
+      box-shadow: 0 0 10px rgba(255,0,0,0.3);
+    }
+
+    .coins-section h2 {
+      color: #ff0000;
+    }
+
+    .coins-section select, input {
+      width: 100%;
+      padding: 8px;
+      margin-top: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+    }
+
+    .modal-content {
+      background-color: white;
+      margin: 10% auto;
+      padding: 30px;
+      border-radius: 10px;
+      width: 320px;
+      text-align: left;
+    }
+
+    .close {
+      float: right;
+      font-size: 22px;
+      font-weight: bold;
+      color: #aaa;
+      cursor: pointer;
+    }
+
+    .pay-btn {
+      background-color: #28a745;
+      color: white;
+      border: none;
+      padding: 10px;
+      border-radius: 8px;
+      width: 100%;
+      cursor: pointer;
+      font-weight: bold;
+      margin-top: 15px;
+    }
+
+    .pay-btn:hover { background-color: #218838; }
+  </style>
+</head>
+<body>
+
+  <h1>Донат персонажей</h1>
+
+  <div class="character baron">
+    <h2>Барон</h2>
+    <p>Цвет: голубой</p>
+    <p><strong>Цена: 100 ₸</strong></p>
+    <button class="donate-btn" onclick="openModal('Барон', 100)">купить</button>
+  </div>
+
+  <div class="character fighter">
+    <h2>Боец</h2>
+    <p>Цвет: красный</p>
+    <p><strong>Цена: 299 ₸</strong></p>
+    <button class="donate-btn" onclick="openModal('Боец', 299)">купить</button>
+  </div>
+
+  <div class="character duke">
+    <h2>Герцог</h2>
+    <p>Цвет: синий</p>
+    <p><strong>Цена: 399 ₸</strong></p>
+    <button class="donate-btn" onclick="openModal('Герцог', 399)">купить</button>
+  </div>
+
+  <!-- Раздел покупки койнов -->
+  <div class="coins-section">
+    <h2>💰 Покупка койнов</h2>
+    <p>1 койн = 0.5 ₽ (пример)</p>
+    <label>Введите количество койнов:</label>
+    <input type="number" id="coinAmount" placeholder="например, 100" min="10">
+    <label>Ваш никнейм (в игре):</label>
+    <input type="text" id="playerName" placeholder="Ваш ник">
+    <label>Выберите способ оплаты:</label>
+    <select id="coinMethod">
+      <option value="kaspi">Kaspi</option>
+      <option value="yoomoney">YooMoney</option>
+    </select>
+    <button class="pay-btn" onclick="buyCoins()">Купить койны</button>
+  </div>
+
+  <!-- Модальное окно донатов -->
+  <div id="donateModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal()">&times;</span>
+      <h2 id="donateTitle">Донат персонажа</h2>
+      <p>Сумма: <span id="displayAmount"></span> ₸</p>
+      <p>Способ оплаты:</p>
+      <select id="method" style="width:100%; padding:8px;">
+        <option value="kaspi">Kaspi</option>
+        <option value="yoomoney">YooMoney</option>
+      </select>
+      <button class="pay-btn" onclick="pay()">Оплатить</button>
+    </div>
+  </div>
+
+  <script>
+    let selectedCharacter = "";
+    let selectedAmount = 0;
+
+    function openModal(characterName, amount) {
+      selectedCharacter = characterName;
+      selectedAmount = amount;
+      document.getElementById("donateTitle").innerText = "Донат за персонажа: " + characterName;
+      document.getElementById("displayAmount").innerText = amount;
+      document.getElementById("donateModal").style.display = "block";
+    }
+
+    function closeModal() {
+      document.getElementById("donateModal").style.display = "none";
+    }
+
+    function pay() {
+      const method = document.getElementById("method").value;
+      if (method === "kaspi") {
+        const kaspiLink = "https://kaspi.kz/pay/ВАШ_КАСПИ_СЧЁТ?amount=" + selectedAmount + "&description=" + encodeURIComponent("Донат за " + selectedCharacter);
+        window.open(kaspiLink, "_blank");
+      } else {
+        const yoomoneyLink = "https://yoomoney.ru/quickpay/confirm.xml?receiver=ВАШ_КОШЕЛЁК&sum=" + selectedAmount + "&targets=" + encodeURIComponent("Донат за " + selectedCharacter);
+        window.open(yoomoneyLink, "_blank");
+      }
+      closeModal();
+    }
+
+    function buyCoins() {
+      const amount = parseInt(document.getElementById("coinAmount").value);
+      const player = document.getElementById("playerName").value;
+      const method = document.getElementById("coinMethod").value;
+
+      if (!amount || amount <= 0) return alert("Введите количество койнов!");
+      if (!player) return alert("Введите ник игрока!");
+
+      const cost = amount * 0.5; // 1 койн = 0.5 рубля (пример)
+      const description = `Покупка ${amount} койнов игроком ${player}`;
+
+      if (method === "kaspi") {
+        const link = "https://kaspi.kz/pay/ВАШ_КАСПИ_СЧЁТ?amount=" + cost + "&description=" + encodeURIComponent(description);
+        window.open(link, "_blank");
+      } else {
+        const link = "https://yoomoney.ru/quickpay/confirm.xml?receiver=ВАШ_КОШЕЛЁК&sum=" + cost + "&targets=" + encodeURIComponent(description);
+        window.open(link, "_blank");
+      }
+
+      // После оплаты (на сервере) можно выполнить команду:
+      // /p give %player_name% amount
+      // Например, через webhook или API Minecraft сервера.
+    }
+
+    window.onclick = function(event) {
+      const modal = document.getElementById("donateModal");
+      if (event.target === modal) {
+        modal.style.display = "none";
+      }
+    }
+  </script>
+</body>
+</html>
